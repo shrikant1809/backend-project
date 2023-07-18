@@ -76,6 +76,7 @@ app.post('/add/courseOffering', (req: Request, res: Response) => {
     max_employees,
   };
 
+<<<<<<< HEAD
   const query =
     'INSERT INTO course_offering (course_id, course_name, instructor_name, start_date, min_employees, max_employees) VALUES (?, ?, ?, ?, ?, ?)';
 
@@ -118,6 +119,37 @@ app.post('/add/courseOffering', (req: Request, res: Response) => {
       });
     }
   );
+=======
+  const query = 'INSERT INTO course_offerings SET ?';
+  connection.query(query, newCourseOffering, (err, result) => {
+    if (err) {
+      console.error('Error adding course offering:', err);
+      return res.status(500).json({
+        status: 500,
+        message: 'DATABASE_ERROR',
+        data: {
+          failure: {
+            message: 'Failed to add course offering',
+          },
+        },
+      });
+    }
+
+    console.log('Course offering added successfully');
+
+    courseOfferings.push(newCourseOffering);
+
+    return res.status(200).json({
+      status: 200,
+      message: 'course added successfully',
+      data: {
+        success: {
+          course_id,
+        },
+      },
+    });
+  });
+>>>>>>> 82cff492c412121eb1559624b053859ded62cc48
 });
 
 app.post('/add/register/:course_id', (req: Request, res: Response) => {
@@ -168,7 +200,11 @@ app.post('/add/register/:course_id', (req: Request, res: Response) => {
     status: 'ACCEPTED',
   };
 
+<<<<<<< HEAD
   const query = 'SELECT * FROM taskdb1.registration';
+=======
+  const query = 'SELECT * FROM taskdb1.registrations';
+>>>>>>> 82cff492c412121eb1559624b053859ded62cc48
   connection.query(query, newRegistration, (err, result) => {
     if (err) {
       console.error('Error adding registration:', err);
