@@ -152,6 +152,7 @@ app.post('/add/register/:course_id', (req: Request, res: Response) => {
       },
     });
   }
+<<<<<<< HEAD
 
   if (
     registrations.filter((reg) => reg.course_id === course_id).length <
@@ -161,6 +162,8 @@ app.post('/add/register/:course_id', (req: Request, res: Response) => {
     courseOffering.status = COURSE_CANCELED;
     console.log('Course offering canceled due to insufficient registrations');
   }
+=======
+>>>>>>> ba1cc895902fce4a663fb35e6f3b1e0a52c54c0a
   if (
     registrations.filter((reg) => reg.course_id === course_id).length >=
     courseOffering.max_employees
