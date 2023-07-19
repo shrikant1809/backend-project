@@ -9,6 +9,7 @@ interface CourseOffering {
   start_date: string;
   min_employees: number;
   max_employees: number;
+  status: string;
 }
 interface Registration {
   registration_id: string;
@@ -37,6 +38,8 @@ connection.connect((err) => {
 
 let courseOfferings: CourseOffering[] = [];
 let registrations: Registration[] = [];
+
+const COURSE_CANCELED = 'COURSE_CANCELED';
 
 app.post('/add/courseOffering', (req: Request, res: Response) => {
   const {
@@ -74,9 +77,9 @@ app.post('/add/courseOffering', (req: Request, res: Response) => {
     start_date,
     min_employees,
     max_employees,
+    status: '',
   };
 
-<<<<<<< HEAD
   const query =
     'INSERT INTO course_offering (course_id, course_name, instructor_name, start_date, min_employees, max_employees) VALUES (?, ?, ?, ?, ?, ?)';
 
@@ -119,37 +122,6 @@ app.post('/add/courseOffering', (req: Request, res: Response) => {
       });
     }
   );
-=======
-  const query = 'INSERT INTO course_offerings SET ?';
-  connection.query(query, newCourseOffering, (err, result) => {
-    if (err) {
-      console.error('Error adding course offering:', err);
-      return res.status(500).json({
-        status: 500,
-        message: 'DATABASE_ERROR',
-        data: {
-          failure: {
-            message: 'Failed to add course offering',
-          },
-        },
-      });
-    }
-
-    console.log('Course offering added successfully');
-
-    courseOfferings.push(newCourseOffering);
-
-    return res.status(200).json({
-      status: 200,
-      message: 'course added successfully',
-      data: {
-        success: {
-          course_id,
-        },
-      },
-    });
-  });
->>>>>>> 82cff492c412121eb1559624b053859ded62cc48
 });
 
 app.post('/add/register/:course_id', (req: Request, res: Response) => {
@@ -180,7 +152,19 @@ app.post('/add/register/:course_id', (req: Request, res: Response) => {
       },
     });
   }
-  if (courseOffering.max_employees <= courseOffering.min_employees) {
+
+  if (
+    registrations.filter((reg) => reg.course_id === course_id).length <
+    courseOffering.min_employees
+  ) {
+    // Set the status of the course offering to 'COURSE_CANCELED'
+    courseOffering.status = COURSE_CANCELED;
+    console.log('Course offering canceled due to insufficient registrations');
+  }
+  if (
+    registrations.filter((reg) => reg.course_id === course_id).length >=
+    courseOffering.max_employees
+  ) {
     return res.status(400).json({
       status: 400,
       message: 'COURSE_FULL_ERROR',
@@ -200,40 +184,44 @@ app.post('/add/register/:course_id', (req: Request, res: Response) => {
     status: 'ACCEPTED',
   };
 
-<<<<<<< HEAD
-  const query = 'SELECT * FROM taskdb1.registration';
-=======
-  const query = 'SELECT * FROM taskdb1.registrations';
->>>>>>> 82cff492c412121eb1559624b053859ded62cc48
-  connection.query(query, newRegistration, (err, result) => {
-    if (err) {
-      console.error('Error adding registration:', err);
-      return res.status(500).json({
-        status: 500,
-        message: 'DATABASE_ERROR',
+  // const query = 'SELECT * FROM taskdb1.registration';
+  const query =
+    'INSERT INTO registrations (registration_id, email, course_name, course_id, status) VALUES (?, ?, ?, ?, ?)';
+
+  // connection.query(query, newRegistration, (err, result) => {
+  connection.query(
+    query,
+    [registration_id, email, courseOffering.course_name, course_id, 'ACCEPTED'],
+    (err, result) => {
+      if (err) {
+        console.error('Error adding registration:', err);
+        return res.status(500).json({
+          status: 500,
+          message: 'DATABASE_ERROR',
+          data: {
+            failure: {
+              message: 'Failed to add registration',
+            },
+          },
+        });
+      }
+
+      console.log('Registration added successfully');
+
+      registrations.push(newRegistration);
+
+      return res.status(200).json({
+        status: 200,
+        message: `successfully registered for ${course_id}`,
         data: {
-          failure: {
-            message: 'Failed to add registration',
+          success: {
+            registration_id: `${employee_name}-${course_id}`,
+            status: 'ACCEPTED',
           },
         },
       });
     }
-
-    console.log('Registration added successfully');
-
-    registrations.push(newRegistration);
-
-    return res.status(200).json({
-      status: 200,
-      message: `successfully registered for ${course_id}`,
-      data: {
-        success: {
-          registration_id: `${employee_name}-${course_id}`,
-          status: 'ACCEPTED',
-        },
-      },
-    });
-  });
+  );
 });
 
 app.post('/allot/:course_id', (req: Request, res: Response) => {
